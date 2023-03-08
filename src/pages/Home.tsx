@@ -3,6 +3,14 @@ import AntTitle from '../components/AntTitle';
 import NewTodoListInput from '../components/NewTodoList';
 import TodoList from '../components/TodoList';
 
+interface ToDo {
+  title: string;
+  id: number;
+  isCompleted: boolean;
+  description: string;
+  _id?: string;
+}
+
 const Home = () => {
   const [todoList, setTodoList] = useState(
     localStorage.getItem('todoStorage')
@@ -10,6 +18,8 @@ const Home = () => {
         JSON.parse(localStorage.getItem('todoStorage'))
       : [],
   );
+
+  // const [error, setError] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -26,20 +36,13 @@ const Home = () => {
         setTodoList(data);
       });
     setLoading(false);
-  }, []);
+  }, [todoList]);
 
   useEffect(() => {
     if (todoList) {
       localStorage.setItem('todoStorage', JSON.stringify(todoList));
     }
   }, [todoList]);
-
-  interface ToDo {
-    title: string;
-    id: number;
-    isCompleted: boolean;
-    _id?: string;
-  }
 
   const onCreateBackEndItem = async (item: ToDo) => {
     await fetch('http://localhost:5000/todo', {
@@ -99,17 +102,36 @@ const Home = () => {
       title: itemTitle,
       id: todoList.length + 1,
       isCompleted: false,
+      description: '',
     };
+    if (itemTitle.length > 0) {
+      setTodoList([...todoList, newItem]);
+      onCreateBackEndItem(newItem);
+    }
+  };
 
-    setTodoList([...todoList, newItem]);
-
-    onCreateBackEndItem(newItem);
+  const handleOnAddDescription = (item: ToDo) => {
+    const newTodoList = todoList.map((taskItem: ToDo) => {
+      if (taskItem.id === todoList.length) {
+        return { ...taskItem, description: item };
+      }
+      return taskItem;
+    });
+    setTodoList(newTodoList);
+    onConcludeTask(
+      newTodoList[todoList.length - 1],
+      newTodoList[todoList.length - 1]._id,
+    );
   };
 
   return (
     <>
       <AntTitle content="Lista de tarefas" />
-      <NewTodoListInput onAddItem={handleOnAddItem} />
+
+      <NewTodoListInput
+        onAddItem={handleOnAddItem}
+        onAddDescription={handleOnAddDescription}
+      />
       <TodoList
         todoList={todoList}
         onComplete={handleOnComplete}

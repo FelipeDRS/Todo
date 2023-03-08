@@ -1,7 +1,7 @@
 import { Button, List } from 'antd';
 import React from 'react';
 
-const TodoList = ({ todoList, onRemove, onComplete }: any) => {
+const TodoList = ({ todoList, onRemove, onComplete, description }: any) => {
   return (
     <List
       style={{ marginTop: '10px' }}
@@ -35,11 +35,17 @@ const TodoList = ({ todoList, onRemove, onComplete }: any) => {
                 ✓
               </Button>
             )
-          }{' '}
+          }
           {
             //@ts-ignore
             item.title
           }
+          <div>
+            {
+              //@ts-ignore
+              item.description
+            }
+          </div>
         </List.Item>
       )}
     />
